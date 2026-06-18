@@ -1,0 +1,16 @@
+{
+  "input": "C:\\2_Scripts\\publish-bot\\input",
+  "complete": "C:\\2_Scripts\\publish-bot\\complete",
+  "dry_run": true,
+  "preview": true,
+  "keep_input": true,
+  "dry_run_meta_save": true,
+  "validate_first": false,
+  "meta_table": "fpc-reports",
+  "meta_sheet": "test",
+  "google_api": "C:\\2_Scripts\\publish-bot\\.env\\Gsheet-creds.json",
+  "custom_name": "",
+  "custom_date": "",
+  "custom_css": "",
+  "commit_message": ""
+}

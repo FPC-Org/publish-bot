@@ -1,0 +1,467 @@
+/* Publication stylesheet */
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --muted: #444444;
+  --link: rgb(153, 0, 0);
+  --border: #dddddd;
+  --accent: rgb(153, 0, 0);
+}
+
+html.dark-mode {
+  --bg: #121212;
+  --text: #e8e8e8;
+  --muted: #b8b8b8;
+  --link: #cc4c4c;
+  --border: #2a2a2a;
+  --accent: #cc4c4c;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 10pt;
+  line-height: 1.15;
+}
+
+body {
+  background: var(--bg);
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 1.2rem 1rem 2rem;
+  word-wrap: break-word;
+}
+
+.logo-header {
+  text-align: center;
+  margin: 0 0 10pt 0;
+}
+
+.fpc-logo-link {
+  display: inline-block;
+}
+
+.fpc-logo {
+  max-height: 80px;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+}
+
+h1.title {
+  margin: 0 0 6pt 0;
+  font-family: "Bookman Old Style", Bookman, "Palatino Linotype", serif;
+  font-size: 14pt;
+  font-style: italic;
+  color: var(--accent);
+  text-align: left;
+}
+
+.author,
+.byline {
+  margin: 0 0 8pt 0;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 10pt;
+  text-align: left;
+  color: var(--muted);
+}
+
+.pub-date {
+  margin: 0 0 10pt 0;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 10pt;
+  text-align: left;
+  color: var(--muted);
+}
+
+.pub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  margin: 0 0 8pt 0;
+}
+
+.pub-header-text {
+  max-width: 700px;
+}
+
+.pub-header-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pub-header-button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  border-radius: 4px;
+  text-decoration: none;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 10pt;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.pub-header-button:hover,
+.pub-header-button:focus-visible {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  outline: none;
+}
+
+.pub-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 10pt;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.pub-theme-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.pub-theme-slider {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+.pub-theme-slider::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  transition: transform 0.2s ease;
+}
+
+.pub-theme-toggle input:checked + .pub-theme-slider {
+  background: var(--accent);
+}
+
+.pub-theme-toggle input:checked + .pub-theme-slider::after {
+  transform: translateX(18px);
+}
+
+.pub-theme-toggle input:focus-visible + .pub-theme-slider {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.pub-theme-label {
+  line-height: 1;
+}
+
+.pub-footer-actions {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pub-footer-button {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  border-radius: 4px;
+  text-decoration: none;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 10pt;
+  cursor: pointer;
+}
+
+.pub-footer-button:hover,
+.pub-footer-button:focus-visible {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  outline: none;
+}
+
+h1:not(.title) {
+  margin: 6pt 0 0 0;
+  font-family: "Bookman Old Style", Bookman, "Palatino Linotype", serif;
+  font-size: 12pt;
+  font-style: italic;
+  color: var(--accent);
+}
+
+h2 {
+  margin: 6pt 0 0 0;
+  font-family: "Bookman Old Style", Bookman, "Palatino Linotype", serif;
+  font-size: 11pt;
+  color: var(--accent);
+}
+
+h3,
+h4,
+h5,
+h6 {
+  margin: 6pt 0 0 0;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 10pt;
+  color: #000000;
+}
+
+p,
+ul,
+ol,
+blockquote,
+pre,
+table {
+  margin-top: 0;
+  margin-bottom: 6pt;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+figure,
+.figure-grid {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+figure {
+  margin: 1rem auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+figure img {
+  margin: 0 auto;
+}
+
+.pub-figure-img {
+  cursor: zoom-in;
+}
+
+figcaption {
+  margin-top: 4pt;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 9pt;
+  font-style: italic;
+  text-align: left;
+}
+
+.pub-figure-caption {
+  margin-bottom: 6pt;
+}
+
+.pub-figure-download {
+  display: inline-block;
+  margin: 0;
+  padding: 3pt 7pt;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  background: #ffffff;
+  color: var(--accent);
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 8.5pt;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+.pub-figure-download:hover,
+.pub-figure-download:focus-visible {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: var(--accent);
+  outline: none;
+}
+
+.pub-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+}
+
+.pub-lightbox.is-open {
+  display: block;
+}
+
+.pub-lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.pub-lightbox-panel {
+  position: relative;
+  max-width: min(92vw, 1200px);
+  max-height: 92vh;
+  margin: 3vh auto;
+  background: var(--bg);
+  padding: 0.7rem 0.7rem 0.9rem;
+  border-radius: 4px;
+  overflow: auto;
+}
+
+.pub-lightbox-close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.pub-lightbox-img {
+  max-width: 100%;
+  max-height: calc(92vh - 120px);
+  margin: 0 auto;
+}
+
+.pub-lightbox-caption {
+  margin: 8pt 0 0;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 9pt;
+  font-style: italic;
+  text-align: left;
+  color: var(--text);
+}
+
+.figure-grid {
+  margin: 1rem auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-content: center;
+  align-items: start;
+  gap: 12pt;
+  max-width: 100%;
+}
+
+.figure-grid .figure-block {
+  margin: 0;
+  min-width: 0;
+}
+
+.figure-grid.figure-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.figure-grid.figure-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.figure-grid.figure-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.figure-grid.figure-cols-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.pub-table-caption {
+  font-style: italic;
+  font-weight: normal;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 9pt;
+  text-align: left;
+}
+
+.pub-copyright {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-family: "Century Gothic", Verdana, Arial, sans-serif;
+  font-size: 8.5pt;
+  color: var(--muted);
+}
+
+table {
+  width: 100%;
+  border: none;
+  border-collapse: collapse;
+  margin-top: 0;
+  margin-bottom: 6pt;
+}
+
+table.figure-table,
+table.figure-table *,
+table.layout-table,
+table.layout-table * {
+  border: none !important;
+}
+
+th,
+td {
+  padding: 4pt 6pt;
+  vertical-align: top;
+}
+
+a {
+  color: var(--link);
+}
+
+@page {
+  margin: 0.75in;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .pub-figure-download,
+  .pub-lightbox {
+    display: none !important;
+  }
+
+  figure,
+  .figure-grid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+@media (max-width: 768px) {
+  .pub-header {
+    flex-direction: column;
+  }
+
+  .pub-header-actions {
+    margin-top: 1rem;
+  }
+
+  .figure-grid.figure-cols-2,
+  .figure-grid.figure-cols-3,
+  .figure-grid.figure-cols-4,
+  .figure-grid.figure-cols-5 {
+    grid-template-columns: 1fr;
+  }
+}
