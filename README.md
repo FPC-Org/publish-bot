@@ -18,9 +18,11 @@ publish-bot/
   .env/
     Gsheet-creds.json
   complete/
-  css/
-    publication.css
   input/
+  style/
+    publication.css
+    rs_header/
+      fpc_logo.png
   utils/
     config.py
     conversion.py
@@ -88,16 +90,25 @@ The script derives some paths automatically and expects this local layout:
 ```text
 C:\2_Scripts\
   publish-bot\
+    style\
+      rs_header\        ← header assets live here, inside publish-bot
   members\
-    assets\
-      rs_header\
     research_summaries\
 ```
 
 ### Required `members` paths
 
-- `C:\2_Scripts\members\assets\rs_header`
 - `C:\2_Scripts\members\research_summaries`
+
+### Header assets
+
+The FPC logo and header assets are kept inside the publish-bot repo at:
+
+```text
+C:\2_Scripts\publish-bot\style\rs_header\
+```
+
+They are copied into each archived report's `assets\rs_header\` folder during processing.
 
 ## Configuration
 
@@ -110,6 +121,8 @@ All runtime behavior is driven by `config.json`.
   "input": "C:\\2_Scripts\\publish-bot\\input",
   "complete": "C:\\2_Scripts\\publish-bot\\complete",
   "dry_run": true,
+  "preview": true,
+  "keep_input": true,
   "dry_run_meta_save": true,
   "validate_first": false,
   "meta_table": "fpc-reports",
@@ -117,7 +130,8 @@ All runtime behavior is driven by `config.json`.
   "google_api": "C:\\2_Scripts\\publish-bot\\.env\\Gsheet-creds.json",
   "custom_name": "",
   "custom_date": "",
-  "custom_css": ""
+  "custom_css": "",
+  "commit_message": ""
 }
 ```
 
@@ -255,8 +269,8 @@ Expected format: `YYYYMMDD`
 
 Effect:
 
-- If valid, the first four digits are used as the publication year in naming and citation metadata.
-- If blank or invalid, the current year is used.
+- If valid, the date drives both the publication year used in folder naming and the "Month YYYY" display date shown in the report header (e.g. `20260601` → `June 2026`).
+- If blank or invalid, the current month and year are used.
 
 ### `custom_css`
 
@@ -266,8 +280,49 @@ Required: no
 
 Effect:
 
-- If blank, `css/publication.css` is copied into each report folder.
+- If blank, `style/publication.css` is copied into each report folder.
 - If provided, that file is copied into each report folder as `publication.css`.
+
+### `preview`
+
+Type: boolean
+
+Required: no
+
+Default: `false`
+
+Effect:
+
+- Only meaningful when `dry_run` is `true`.
+- If `true`, the script opens each processed `index.html` in the default browser after the run completes so you can review the output without navigating to the archive folder manually.
+
+### `keep_input`
+
+Type: boolean
+
+Required: no
+
+Default: `false`
+
+Effect:
+
+- If `false`, the source `.docx` files are deleted from the `input` folder after a successful batch (original behavior).
+- If `true`, the source files are left in place after processing.
+
+### `commit_message`
+
+Type: string
+
+Required: no
+
+Default: empty string
+
+Effect:
+
+- If blank, the git commit message for live runs is the default: `publish: <N> report(s) — <YYYYMMDD>`.
+- If populated, the value is appended to the default message with an em-dash separator:
+  `publish: <N> report(s) — <YYYYMMDD> — <your message here>`
+- Useful for flagging something notable about a specific run in the git history.
 
 ## Input Document Requirements
 
@@ -409,7 +464,7 @@ Then any `.docx` file is removed from that live copy so only web-ready artifacts
 
 ### 3. Input cleanup
 
-After a successful batch, processed `.docx` files are removed from the configured input location.
+After a successful batch, processed `.docx` files are removed from the configured input location unless `keep_input` is `true`, in which case they are left in place.
 
 ## Logging and Audit Files
 
@@ -432,6 +487,8 @@ This log includes:
 - report count
 - validation issues
 - processed report summary
+- configuration section listing all active config values for the run
+- total runtime in seconds
 
 ### Per-report audit file
 
