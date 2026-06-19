@@ -8,13 +8,11 @@ Use `preview.py` to convert a Word research summary draft into a formatted HTML 
 
 ### 1. Python
 
-You likely already have Python through ArcGIS Pro. To confirm, open a terminal and run:
+If you don't already have Python, download and install it (3.10 or newer) from:
 
-```powershell
-"C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe" --version
-```
+**https://www.python.org/downloads/**
 
-If that prints a version number, you're good.
+During installation, check **"Add Python to PATH"** so you can run it from any terminal.
 
 ### 2. Pandoc
 
@@ -43,7 +41,7 @@ Or download it as a ZIP from GitHub and extract it.
 In a terminal, navigate into the `publish-bot` folder and run:
 
 ```powershell
-"C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe" -m pip install pypandoc gspread
+pip install pypandoc
 ```
 
 ---
@@ -53,7 +51,7 @@ In a terminal, navigate into the `publish-bot` folder and run:
 Open a terminal, navigate to the `publish-bot` folder, and run:
 
 ```powershell
-"C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe" preview.py
+python preview.py
 ```
 
 A file picker dialog will open. Select your `.docx` draft and click **Open**.
@@ -65,7 +63,7 @@ The tool will convert your document and automatically open the HTML preview in y
 If you prefer to skip the dialog, you can pass the file path as an argument:
 
 ```powershell
-"C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe" preview.py "C:\path\to\your\report.docx"
+python preview.py "C:\path\to\your\report.docx"
 ```
 
 ---
