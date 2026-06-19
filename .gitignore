@@ -11,3 +11,5 @@ input/
 *.log
 .claude/
 preview_output/
+preview-build/dist/
+preview-build/build/

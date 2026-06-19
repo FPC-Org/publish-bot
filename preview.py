@@ -9,14 +9,31 @@ Usage:
 """
 from __future__ import annotations
 
+import os
 import shutil
 import sys
 import webbrowser
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
+# --- path resolution: handles both script mode and PyInstaller frozen exe ---
+_FROZEN = getattr(sys, "frozen", False)
+
+if _FROZEN:
+    # Bundled exe: assets live in the PyInstaller temp extraction dir
+    _BUNDLE_DIR = Path(sys._MEIPASS)  # type: ignore[attr-defined]
+    _EXE_DIR = Path(sys.executable).parent
+    os.environ["PYPANDOC_PANDOC"] = str(_BUNDLE_DIR / "pandoc.exe")
+    _CSS_DIR = _BUNDLE_DIR / "style"
+    _HEADER_ASSETS = _BUNDLE_DIR / "style" / "rs_header"
+    _OUTPUT_ROOT = _EXE_DIR / "preview_output"
+else:
+    # Normal script: paths relative to repo root
+    _REPO_ROOT = Path(__file__).resolve().parent
+    if str(_REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(_REPO_ROOT))
+    _CSS_DIR = _REPO_ROOT / "style"
+    _HEADER_ASSETS = _REPO_ROOT / "style" / "rs_header"
+    _OUTPUT_ROOT = _REPO_ROOT / "preview_output"
 
 from utils.conversion import (
     convert_docx_to_html,
@@ -26,10 +43,6 @@ from utils.conversion import (
     resolve_publication_display_date,
     resolve_publication_year,
 )
-
-_OUTPUT_ROOT = _REPO_ROOT / "preview_output"
-_CSS_DIR = _REPO_ROOT / "style"
-_HEADER_ASSETS = _REPO_ROOT / "style" / "rs_header"
 
 
 def _pick_docx() -> Path:
@@ -49,7 +62,7 @@ def _pick_docx() -> Path:
         return Path(chosen)
     except Exception as exc:
         print(f"File picker unavailable ({exc}).")
-        print("Usage: python preview.py path\\to\\report.docx")
+        print("Drag and drop a .docx file onto FPC_Preview.exe instead.")
         sys.exit(1)
 
 
