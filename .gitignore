@@ -10,3 +10,4 @@ complete/
 input/
 *.log
 .claude/
+preview_output/
