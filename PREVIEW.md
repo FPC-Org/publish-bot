@@ -82,16 +82,11 @@ It stays there until you run the tool again on the same file, at which point it 
 
 ## Document Requirements
 
-Your Word document needs to include the following labeled metadata lines near the top:
+Your Word document must follow the most recent FPC Research Summary template:
 
-| Field | Example |
-|---|---|
-| `Title:` | Regionwide 28: Quantifying Carryover Effects |
-| `Author:` | Timothy Albaugh |
-| `New or Updated:` | Updated |
-| `Species:` | Pine |
+**[FPC Research Summary Template (Dropbox)](https://www.dropbox.com/scl/fo/gnwe6ia17tzdssac8o5o7/APcyFeNYhwRa06nl3eWGhjQ?rlkey=m0phoiuomui7ftrlt3gfzpj7v&st=v1522tvj&dl=0)**
 
-The preview tool reads these fields to build the report header. If any are missing the tool will still run, but the header may show placeholder values.
+If the required metadata fields from the template are missing, the tool will still run but the report header may show placeholder values.
 
 ---
 
