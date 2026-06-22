@@ -35,6 +35,16 @@ else:
     _HEADER_ASSETS = _REPO_ROOT / "style" / "rs_header"
     _OUTPUT_ROOT = _REPO_ROOT / "preview_output"
 
+def _ensure_dependencies() -> None:
+    import importlib.util
+    import subprocess
+    if importlib.util.find_spec("pypandoc") is None:
+        print("pypandoc not found — installing...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pypandoc"])
+        print("pypandoc installed.\n")
+
+_ensure_dependencies()
+
 from utils.conversion import (
     convert_docx_to_html,
     ensure_css_assets,
@@ -84,9 +94,7 @@ def run_preview(docx_path: Path) -> None:
         sys.exit(1)
 
     output_dir = _OUTPUT_ROOT / docx_path.stem
-    if output_dir.exists():
-        shutil.rmtree(output_dir)
-    output_dir.mkdir(parents=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"Converting {docx_path.name} ...")
 
