@@ -17,6 +17,7 @@ W_VAL = f"{{{W_NS}}}val"
 
 PROGRAM_NAME = "Forest Productivity Cooperative Research Summaries"
 RESEARCH_SUMMARIES_URL = "https://members.forestproductivity.org/research_summaries/"
+HOME_URL = "https://members.forestproductivity.org/home"
 
 
 @dataclass(frozen=True)
@@ -726,7 +727,7 @@ def _inject_interactivity(html: str, report_web_root: str) -> str:
     payload = f"""
 <div class="pub-footer-actions no-print">
   <button id="scrollTopBtn" class="pub-footer-button" type="button">Scroll to Top</button>
-  <a class="pub-footer-button" href="{report_web_root}">Back to Research Summaries</a>
+  <a class="pub-footer-button" href="{HOME_URL}">Back to Research Summaries</a>
 </div>
 <div id="pub-image-lightbox" class="pub-lightbox" role="dialog" aria-modal="true" aria-hidden="true">
   <div class="pub-lightbox-backdrop" data-lightbox-close="true"></div>
@@ -936,6 +937,22 @@ def _style_caption_labels(html: str) -> str:
     return html
 
 
+_MEMBERSPACE_SNIPPET = (
+    '<script> var MemberSpace = window.MemberSpace || {"subdomain":"members11"};'
+    " (function(d){ var s = d.createElement(\"script\");"
+    ' s.src = "https://cdn.memberspace.com/scripts/widgets.js";'
+    " var e = d.getElementsByTagName(\"script\")[0];"
+    " e.parentNode.insertBefore(s,e); }(document)); </script>"
+)
+
+
+def _insert_memberspace_script(html: str) -> str:
+    """Inject the MemberSpace protection script as the first element in <head>."""
+    if "cdn.memberspace.com" in html:
+        return html
+    return html.replace("<head>", f"<head>\n  {_MEMBERSPACE_SNIPPET}", 1)
+
+
 def _insert_copyright_footer(html: str) -> str:
     """Insert an FPC copyright notice at the bottom of the report body."""
     if 'class="pub-copyright"' in html:
@@ -993,7 +1010,7 @@ def _apply_publication_header_layout(html: str, web_root: str) -> str:
         '<div class="pub-header"><div class="pub-header-text">'
         + "\n".join(text_parts)
         + '</div><div class="pub-header-actions no-print">'
-        + f'<a class="pub-header-button" href="{web_root}">All Research Summaries</a>'
+        + f'<a class="pub-header-button" href="{HOME_URL}">All Research Summaries</a>'
         + '<button class="pub-header-button" type="button" id="printPdfBtn">Print / Save as PDF</button>'
         + '<label class="pub-theme-toggle no-print" for="themeToggle">'
         + '<input type="checkbox" id="themeToggle" aria-label="Dark Mode">'
@@ -1064,4 +1081,5 @@ def patch_html_after_conversion(
 
     html = _apply_publication_header_layout(html, web_root)
     html = _insert_copyright_footer(html)
+    html = _insert_memberspace_script(html)
     html_path.write_text(html, encoding="utf-8")
