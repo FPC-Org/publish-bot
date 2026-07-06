@@ -938,7 +938,7 @@ def _style_caption_labels(html: str) -> str:
 
 
 _MEMBERSPACE_SNIPPET = (
-    '<script> var MemberSpace = window.MemberSpace || {"subdomain":"members11","cookieDomain":"forestproductivity.org"};'
+    '<script> var MemberSpace = window.MemberSpace || {"cookieDomain":"forestproductivity.org","subdomain":"fpc"};'
     " (function(d){ var s = d.createElement(\"script\");"
     ' s.src = "https://cdn.memberspace.com/scripts/widgets.js";'
     " var e = d.getElementsByTagName(\"script\")[0];"
