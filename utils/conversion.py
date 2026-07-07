@@ -476,7 +476,8 @@ def extract_figure_table_captions(docx_path: Path) -> list[list[str]]:
             continue
         first_cells = rows[0].findall("./w:tc", NS)
         second_cells = rows[1].findall("./w:tc", NS)
-        if not first_cells or len(first_cells) != len(second_cells):
+        colspan_caption = len(second_cells) == 1 and len(first_cells) > 1
+        if not first_cells or (not colspan_caption and len(first_cells) != len(second_cells)):
             continue
         image_indices = []
         for idx, cell in enumerate(first_cells):
@@ -484,7 +485,11 @@ def extract_figure_table_captions(docx_path: Path) -> list[list[str]]:
                 image_indices.append(idx)
         if not image_indices:
             continue
-        extracted.append([_collect_cell_text_from_docx(second_cells[idx]) for idx in image_indices])
+        if colspan_caption:
+            shared_caption = _collect_cell_text_from_docx(second_cells[0])
+            extracted.append([shared_caption for _ in image_indices])
+        else:
+            extracted.append([_collect_cell_text_from_docx(second_cells[idx]) for idx in image_indices])
     return extracted
 
 
@@ -607,7 +612,8 @@ def _convert_figure_tables(
             return table_html
         first_row_cells = _extract_row_cells(row_matches[0].group(0))
         second_row_cells = _extract_row_cells(row_matches[1].group(0))
-        if not first_row_cells or len(first_row_cells) != len(second_row_cells):
+        colspan_caption = len(second_row_cells) == 1 and len(first_row_cells) > 1
+        if not first_row_cells or (not colspan_caption and len(first_row_cells) != len(second_row_cells)):
             return table_html
 
         figure_blocks: list[str] = []
@@ -617,11 +623,12 @@ def _convert_figure_tables(
             if re.search(r"<img\b", image_cell, flags=re.IGNORECASE) is None:
                 continue
             caption_override = docx_caption_row[docx_caption_idx] if docx_caption_idx < len(docx_caption_row) else None
+            caption_cell = second_row_cells[0] if colspan_caption else second_row_cells[idx]
             figure_counter += 1
             figure_blocks.append(
                 _make_figure_block(
                     image_cell,
-                    second_row_cells[idx],
+                    caption_cell,
                     caption_override=caption_override,
                     citation_author=citation_author,
                     citation_year=citation_year,
