@@ -929,6 +929,20 @@ def _inject_interactivity(html: str, report_web_root: str) -> str:
     }});
     if (downloadButton) downloadButton.addEventListener("click", () => downloadFigureImage(imgEl, captionEl));
   }});
+  window.addEventListener("beforeprint", () => {{
+    Array.from(document.body.children).forEach(el => {{
+      if (window.getComputedStyle(el).position === "fixed") {{
+        el.dataset.msPrintHide = "1";
+        el.style.setProperty("display", "none", "important");
+      }}
+    }});
+  }});
+  window.addEventListener("afterprint", () => {{
+    document.querySelectorAll("[data-ms-print-hide]").forEach(el => {{
+      el.style.removeProperty("display");
+      delete el.dataset.msPrintHide;
+    }});
+  }});
 }})();
 </script>
 """.strip()
