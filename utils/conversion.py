@@ -16,8 +16,8 @@ NS = {"w": W_NS}
 W_VAL = f"{{{W_NS}}}val"
 
 PROGRAM_NAME = "Forest Productivity Cooperative Research Summaries"
-RESEARCH_SUMMARIES_URL = "https://members.forestproductivity.org/research_summaries/"
-HOME_URL = "https://members.forestproductivity.org/home"
+RESEARCH_SUMMARIES_URL = "https://members.forestproductivity.org/rs/"
+HOME_URL = "https://members.forestproductivity.org/rs"
 
 
 @dataclass(frozen=True)

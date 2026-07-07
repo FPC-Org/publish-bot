@@ -125,7 +125,7 @@ def load_config(config_path: Path) -> AppConfig:
         keep_input=bool(payload.get("keep_input", False)),
         repo_root=repo_root,
         members_repo_root=members_root.resolve(),
-        live_reports_root=(members_root / "research_summaries").resolve(),
+        live_reports_root=(members_root / "rs").resolve(),
         header_assets_root=(repo_root / "style" / "rs_header").resolve(),
         dry_run_root=dry_run_root,
         default_css_dir=(repo_root / "style").resolve(),

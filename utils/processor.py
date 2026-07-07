@@ -106,9 +106,48 @@ def _allocate_live_folder(live_root: Path, preferred_name: str) -> tuple[str, bo
         index += 1
 
 
+def _normalize_status(status: str) -> str:
+    lowered = status.strip().lower()
+    if "updated" in lowered:
+        return "Update"
+    if "new" in lowered:
+        return "New"
+    return status.strip()
+
+
+def _split_authors(author: str) -> list[str]:
+    """Split a raw author string into individual name parts."""
+    parts = [p.strip() for p in re.split(r"\s+and\s+|,", author) if p.strip()]
+    return parts
+
+
+def _last_name(name: str) -> str:
+    """Return the last word of a name as the surname."""
+    words = name.strip().split()
+    return words[-1] if words else name
+
+
+def _first_author_last_name(author: str) -> str:
+    """Return the first author's last name (lowercase) for sort key use."""
+    parts = _split_authors(author)
+    return _last_name(parts[0]).lower() if parts else author.lower()
+
+
+def _format_sheet_author(author: str) -> str:
+    """Format author string for the sheet: last name only, two last names, or et al."""
+    parts = _split_authors(author)
+    last_names = [_last_name(p) for p in parts]
+    if len(last_names) == 1:
+        return last_names[0]
+    if len(last_names) == 2:
+        return f"{last_names[0]} and {last_names[1]}"
+    return f"{last_names[0]} et al."
+
+
 def _build_sheet_row(title: str, author: str, year: str, section: str, status: str, studies: str, web_link: str, duplicate: bool) -> list[str | bool]:
     """Build the Google Sheets row in the expected column order."""
-    return [title, author, year, section, status, studies, web_link, "", duplicate]
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return [title, year, _format_sheet_author(author), section, _normalize_status(status), studies, web_link, timestamp, duplicate]
 
 
 def _write_batch_log(batch_dir: Path, lines: list[str]) -> None:
@@ -340,7 +379,7 @@ def process_documents(config: AppConfig) -> list[ProcessResult]:
     results: list[ProcessResult] = []
     year = resolve_publication_year(config.custom_date)
     display_date = resolve_publication_display_date(config.custom_date)
-    reports_root_url = "https://members.forestproductivity.org/research_summaries/"
+    reports_root_url = "https://members.forestproductivity.org/rs/"
     batch_dir = _create_batch_dir(config.archive_root, len(input_files), config.dry_run)
     run_timestamp = run_start.strftime("%Y-%m-%d %H:%M:%S")
     log_lines = [
@@ -369,6 +408,8 @@ def process_documents(config: AppConfig) -> list[ProcessResult]:
         for issue in validation.issues:
             log_lines.append(f"[{issue.level.upper()}] {issue.source_file}: {issue.message}")
     _write_batch_log(batch_dir, log_lines)
+
+    pending_sheet_rows: list[tuple[str, list]] = []
 
     for docx_path in input_files:
         metadata = parse_document_metadata(docx_path)
@@ -410,11 +451,9 @@ def process_documents(config: AppConfig) -> list[ProcessResult]:
             web_link=web_link,
         )
         if _should_save_metadata(config):
-            append_report_row(
-                credentials_path=config.google_api,
-                spreadsheet_name=config.meta_table,
-                sheet_name=config.meta_sheet,
-                row_values=_build_sheet_row(
+            pending_sheet_rows.append((
+                _first_author_last_name(metadata.author),
+                _build_sheet_row(
                     metadata.title,
                     metadata.author,
                     year,
@@ -424,7 +463,7 @@ def process_documents(config: AppConfig) -> list[ProcessResult]:
                     web_link,
                     duplicate,
                 ),
-            )
+            ))
 
         results.append(
             ProcessResult(
@@ -436,6 +475,15 @@ def process_documents(config: AppConfig) -> list[ProcessResult]:
                 duplicate_message=duplicate_message,
                 web_link=web_link,
             )
+        )
+
+    # Insert sheet rows in reverse alpha order so the sheet ends up A→Z top to bottom
+    for _, row_values in sorted(pending_sheet_rows, key=lambda x: x[0], reverse=True):
+        append_report_row(
+            credentials_path=config.google_api,
+            spreadsheet_name=config.meta_table,
+            sheet_name=config.meta_sheet,
+            row_values=row_values,
         )
 
     log_lines.append("Processed Reports:")
