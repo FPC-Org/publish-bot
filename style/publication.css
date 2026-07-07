@@ -91,7 +91,7 @@ h1.title {
 }
 
 .pub-header-text {
-  max-width: 700px;
+  max-width: 620px;
 }
 
 .pub-header-actions {
@@ -101,7 +101,9 @@ h1.title {
 }
 
 .pub-header-button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0.5rem 1rem;
   border: 1px solid var(--accent);
   background: transparent;
@@ -112,6 +114,11 @@ h1.title {
   font-size: 10pt;
   line-height: 1.1;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.pub-header-button svg {
+  flex-shrink: 0;
 }
 
 .pub-header-button:hover,
@@ -439,6 +446,15 @@ a {
 
   .pub-figure-download,
   .pub-lightbox {
+    display: none !important;
+  }
+
+  /* Hide MemberSpace login widget */
+  #ms-nav,
+  #ms-members-widget,
+  [id*="memberspace"],
+  [class*="memberspace"],
+  [id^="ms-"] {
     display: none !important;
   }
 

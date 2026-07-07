@@ -59,7 +59,7 @@ def _iter_input_files(input_path: Path) -> list[Path]:
     """
     if input_path.is_file():
         return [input_path]
-    return sorted(path for path in input_path.glob("*.docx") if path.is_file())
+    return sorted(path for path in input_path.glob("*.docx") if path.is_file() and not path.name.startswith("~$"))
 
 
 def _ensure_runtime_directories(config: AppConfig) -> None:

@@ -17,11 +17,13 @@ def append_report_row(
       `fpc-reports`.
     - `sheet_name`: Worksheet name inside the spreadsheet, for example `test`.
     - `row_values`: Ordered row values matching the expected sheet columns.
+      An auto-incrementing index is prepended automatically as column A.
 
     Behavior:
     - Uses `gspread.service_account(...)` for authentication.
     - Opens the spreadsheet by name.
     - Selects the target worksheet by name.
+    - Reads current row count to compute the next sequential index value.
     - Inserts a new row at index 2 so the header row remains at the top.
     """
     try:
@@ -32,4 +34,5 @@ def append_report_row(
     client = gspread.service_account(filename=str(credentials_path))
     spreadsheet = client.open(spreadsheet_name)
     worksheet = spreadsheet.worksheet(sheet_name)
-    worksheet.insert_row(row_values, index=2, value_input_option="USER_ENTERED")
+    next_index = max(1, len(worksheet.get_all_values()))
+    worksheet.insert_row([next_index] + list(row_values), index=2, value_input_option="USER_ENTERED")

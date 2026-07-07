@@ -18,6 +18,40 @@ W_VAL = f"{{{W_NS}}}val"
 PROGRAM_NAME = "Forest Productivity Cooperative Research Summaries"
 RESEARCH_SUMMARIES_URL = "https://members.forestproductivity.org/rs/"
 HOME_URL = "https://members.forestproductivity.org/rs"
+MEMBER_DASHBOARD_URL = "https://www.forestproductivity.org/memberdashboard"
+AUTHOR_CONTACTS_URL = "https://www.forestproductivity.org/people"
+
+_ICON_DASHBOARD = (
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"'
+    ' fill="none" stroke="#990000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    '<path stroke="none" d="M0 0h24v24H0z" fill="none"/>'
+    '<path d="M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/>'
+    '<path d="M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/>'
+    '<path d="M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/>'
+    '<path d="M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/></svg>'
+)
+_ICON_REPORT = (
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"'
+    ' fill="none" stroke="#990000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    '<path d="M14 3v4a1 1 0 0 0 1 1h4"/>'
+    '<path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2"/>'
+    '<path d="M8 13h6"/><path d="M8 16h6"/><path d="M8 19h4"/></svg>'
+)
+_ICON_MAIL = (
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"'
+    ' fill="none" stroke="#990000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    '<path stroke="none" d="M0 0h24v24H0z" fill="none"/>'
+    '<path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10"/>'
+    '<path d="M3 7l9 6l9 -6"/></svg>'
+)
+_ICON_PRINTER = (
+    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"'
+    ' fill="none" stroke="#990000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    '<path stroke="none" d="M0 0h24v24H0z" fill="none"/>'
+    '<path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"/>'
+    '<path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"/>'
+    '<path d="M7 15a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2l0 -4"/></svg>'
+)
 
 
 @dataclass(frozen=True)
@@ -1010,8 +1044,10 @@ def _apply_publication_header_layout(html: str, web_root: str) -> str:
         '<div class="pub-header"><div class="pub-header-text">'
         + "\n".join(text_parts)
         + '</div><div class="pub-header-actions no-print">'
-        + f'<a class="pub-header-button" href="{HOME_URL}">All Research Summaries</a>'
-        + '<button class="pub-header-button" type="button" id="printPdfBtn">Print / Save as PDF</button>'
+        + f'<a class="pub-header-button" href="{MEMBER_DASHBOARD_URL}" target="_blank" rel="noopener">{_ICON_DASHBOARD} Member Dashboard</a>'
+        + f'<a class="pub-header-button" href="{HOME_URL}">{_ICON_REPORT} All Research Summaries</a>'
+        + f'<a class="pub-header-button" href="{AUTHOR_CONTACTS_URL}" target="_blank" rel="noopener">{_ICON_MAIL} Author Contacts</a>'
+        + f'<button class="pub-header-button" type="button" id="printPdfBtn">{_ICON_PRINTER} Print / Save as PDF</button>'
         + '<label class="pub-theme-toggle no-print" for="themeToggle">'
         + '<input type="checkbox" id="themeToggle" aria-label="Dark Mode">'
         + '<span class="pub-theme-slider" aria-hidden="true"></span>'
