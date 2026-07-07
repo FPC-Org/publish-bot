@@ -981,11 +981,13 @@ def _inject_interactivity(html: str, report_web_root: str) -> str:
     if (downloadButton) downloadButton.addEventListener("click", () => downloadFigureImage(imgEl, captionEl));
   }});
   window.addEventListener("beforeprint", () => {{
-    Array.from(document.body.children).forEach(el => {{
-      if (window.getComputedStyle(el).position === "fixed") {{
-        el.dataset.msPrintHide = "1";
-        el.style.setProperty("display", "none", "important");
-      }}
+    document.querySelectorAll("*").forEach(el => {{
+      if (window.getComputedStyle(el).position !== "fixed") return;
+      const id = el.id || "";
+      const cls = typeof el.className === "string" ? el.className : "";
+      if (id.startsWith("pub-") || cls.includes("pub-")) return;
+      el.dataset.msPrintHide = "1";
+      el.style.setProperty("display", "none", "important");
     }});
   }});
   window.addEventListener("afterprint", () => {{
