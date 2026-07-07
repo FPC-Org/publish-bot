@@ -469,27 +469,48 @@ def extract_figure_table_captions(docx_path: Path) -> list[list[str]]:
         xml_bytes = zf.read("word/document.xml")
     root = ET.fromstring(xml_bytes)
 
+    def _row_has_image(row) -> bool:
+        return any(
+            cell.find(".//w:drawing", NS) is not None or cell.find(".//w:pict", NS) is not None
+            for cell in row.findall("./w:tc", NS)
+        )
+
     extracted: list[list[str]] = []
     for table in root.findall(".//w:body/w:tbl", NS):
         rows = table.findall("./w:tr", NS)
-        if len(rows) != 2:
-            continue
-        first_cells = rows[0].findall("./w:tc", NS)
-        second_cells = rows[1].findall("./w:tc", NS)
-        colspan_caption = len(second_cells) == 1 and len(first_cells) > 1
-        if not first_cells or (not colspan_caption and len(first_cells) != len(second_cells)):
-            continue
-        image_indices = []
-        for idx, cell in enumerate(first_cells):
-            if cell.find(".//w:drawing", NS) is not None or cell.find(".//w:pict", NS) is not None:
-                image_indices.append(idx)
-        if not image_indices:
-            continue
-        if colspan_caption:
-            shared_caption = _collect_cell_text_from_docx(second_cells[0])
-            extracted.append([shared_caption for _ in image_indices])
-        else:
-            extracted.append([_collect_cell_text_from_docx(second_cells[idx]) for idx in image_indices])
+
+        if len(rows) == 2:
+            # Standard layout: row 0 = images, row 1 = captions (or colspan caption)
+            first_cells = rows[0].findall("./w:tc", NS)
+            second_cells = rows[1].findall("./w:tc", NS)
+            colspan_caption = len(second_cells) == 1 and len(first_cells) > 1
+            if not first_cells or (not colspan_caption and len(first_cells) != len(second_cells)):
+                continue
+            image_indices = [
+                idx for idx, cell in enumerate(first_cells)
+                if cell.find(".//w:drawing", NS) is not None or cell.find(".//w:pict", NS) is not None
+            ]
+            if not image_indices:
+                continue
+            if colspan_caption:
+                shared = _collect_cell_text_from_docx(second_cells[0])
+                extracted.append([shared for _ in image_indices])
+            else:
+                extracted.append([_collect_cell_text_from_docx(second_cells[idx]) for idx in image_indices])
+
+        elif len(rows) >= 4 and len(rows) % 2 == 0:
+            # Alternating layout: row 0 = image, row 1 = caption, row 2 = image, row 3 = caption …
+            if not all(
+                _row_has_image(rows[i]) and not _row_has_image(rows[i + 1])
+                for i in range(0, len(rows), 2)
+            ):
+                continue
+            captions = [
+                _collect_cell_text_from_docx(rows[i].findall("./w:tc", NS)[0])
+                for i in range(1, len(rows), 2)
+            ]
+            extracted.append(captions)
+
     return extracted
 
 
@@ -604,47 +625,77 @@ def _convert_figure_tables(
     figure_table_index = 0
     figure_counter = 0
 
+    def _html_row_has_image(tr_html: str) -> bool:
+        return bool(re.search(r"<img\b", tr_html, flags=re.IGNORECASE))
+
     def replace_table(match: re.Match[str]) -> str:
         nonlocal figure_table_index, figure_counter
         table_html = match.group(0)
         row_matches = list(re.finditer(r"<tr\b[^>]*>.*?</tr>", table_html, flags=re.IGNORECASE | re.DOTALL))
-        if len(row_matches) != 2:
-            return table_html
-        first_row_cells = _extract_row_cells(row_matches[0].group(0))
-        second_row_cells = _extract_row_cells(row_matches[1].group(0))
-        colspan_caption = len(second_row_cells) == 1 and len(first_row_cells) > 1
-        if not first_row_cells or (not colspan_caption and len(first_row_cells) != len(second_row_cells)):
+
+        # Determine layout: standard 2-row or alternating image/caption pairs
+        side_by_side = False
+        image_caption_pairs: list[tuple[list[str], list[str], bool]] = []
+
+        if len(row_matches) == 2:
+            first_row_cells = _extract_row_cells(row_matches[0].group(0))
+            second_row_cells = _extract_row_cells(row_matches[1].group(0))
+            colspan_caption = len(second_row_cells) == 1 and len(first_row_cells) > 1
+            if not first_row_cells or (not colspan_caption and len(first_row_cells) != len(second_row_cells)):
+                return table_html
+            if not any(re.search(r"<img\b", c, flags=re.IGNORECASE) for c in first_row_cells):
+                return table_html
+            image_caption_pairs = [(first_row_cells, second_row_cells, colspan_caption)]
+            side_by_side = True
+
+        elif len(row_matches) >= 4 and len(row_matches) % 2 == 0:
+            # Alternating: odd rows = images, even rows = captions
+            if not all(
+                _html_row_has_image(row_matches[i].group(0)) and not _html_row_has_image(row_matches[i + 1].group(0))
+                for i in range(0, len(row_matches), 2)
+            ):
+                return table_html
+            image_caption_pairs = [
+                (_extract_row_cells(row_matches[i].group(0)), _extract_row_cells(row_matches[i + 1].group(0)), False)
+                for i in range(0, len(row_matches), 2)
+            ]
+
+        else:
             return table_html
 
         figure_blocks: list[str] = []
         docx_caption_row = docx_captions[figure_table_index] if figure_table_index < len(docx_captions) else []
         docx_caption_idx = 0
-        for idx, image_cell in enumerate(first_row_cells):
-            if re.search(r"<img\b", image_cell, flags=re.IGNORECASE) is None:
-                continue
-            caption_override = docx_caption_row[docx_caption_idx] if docx_caption_idx < len(docx_caption_row) else None
-            caption_cell = second_row_cells[0] if colspan_caption else second_row_cells[idx]
-            figure_counter += 1
-            figure_blocks.append(
-                _make_figure_block(
-                    image_cell,
-                    caption_cell,
-                    caption_override=caption_override,
-                    citation_author=citation_author,
-                    citation_year=citation_year,
-                    citation_title=citation_title,
-                    figure_index=figure_counter,
-                    folder_name=folder_name,
+
+        for img_cells, cap_cells, colspan_cap in image_caption_pairs:
+            for idx, image_cell in enumerate(img_cells):
+                if re.search(r"<img\b", image_cell, flags=re.IGNORECASE) is None:
+                    continue
+                caption_override = docx_caption_row[docx_caption_idx] if docx_caption_idx < len(docx_caption_row) else None
+                caption_cell = cap_cells[0] if (colspan_cap or len(cap_cells) == 1) else cap_cells[idx] if idx < len(cap_cells) else cap_cells[0]
+                figure_counter += 1
+                figure_blocks.append(
+                    _make_figure_block(
+                        image_cell,
+                        caption_cell,
+                        caption_override=caption_override,
+                        citation_author=citation_author,
+                        citation_year=citation_year,
+                        citation_title=citation_title,
+                        figure_index=figure_counter,
+                        folder_name=folder_name,
+                    )
                 )
-            )
-            docx_caption_idx += 1
+                docx_caption_idx += 1
 
         if not figure_blocks:
             return table_html
         figure_table_index += 1
         if len(figure_blocks) == 1:
             return figure_blocks[0]
-        return f'<div class="figure-grid figure-cols-{len(figure_blocks)}">\n' + "\n".join(figure_blocks) + "\n</div>"
+        if side_by_side:
+            return f'<div class="figure-grid figure-cols-{len(figure_blocks)}">\n' + "\n".join(figure_blocks) + "\n</div>"
+        return "\n".join(figure_blocks)
 
     return table_pattern.sub(replace_table, html)
 
